@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import imagen from './cryptomonedas.png';
 import Formulario from './components/Formulario';
 import Cotizacion from './components/Cotizacion';
+import Spinner from './components/Spinner';
 import axios from 'axios';
 
 const Contenedor = styled.div`
@@ -43,7 +44,7 @@ function App() {
   const [ moneda, guardarMoneda ] = useState('');
   const [ criptoMoneda, guardarCriptomoneda ] = useState('');
   const [ resultado, guardarResultado ] = useState({});
-
+  const [ guardando, guardarCargando ] = useState(false);
   useEffect(() => {
 
     const cotizarCriptomoneda = async () => {
@@ -56,13 +57,27 @@ function App() {
         
         const resultado = await axios.get(url);
 
-        guardarResultado(resultado.data.DISPLAY[criptoMoneda] [moneda]);
-      
+        //mostrar spinner
+        guardarCargando(true);
+
+        //ocultar el spinner y mostrar el resultado
+        setTimeout(() => {
+
+          //cambiar el estado de cargando
+          guardarCargando(false);
+
+          //guardar cotización
+          guardarResultado(resultado.data.DISPLAY[criptoMoneda] [moneda]);
+        }, 3000)
     }
 
     cotizarCriptomoneda();
 
   }, [moneda, criptoMoneda]);
+
+  //Mostrar spinner o resultado
+  const componente = (guardando) ? <Spinner /> : <Cotizacion 
+  resultado={resultado} />
 
   return (
     <Contenedor>
@@ -78,9 +93,7 @@ function App() {
           guardarMoneda={ guardarMoneda }
           guardarCriptomoneda={guardarCriptomoneda}
         />
-        <Cotizacion 
-          resultado={resultado}
-        />
+        {componente}
       </div>
     </Contenedor>
   );
